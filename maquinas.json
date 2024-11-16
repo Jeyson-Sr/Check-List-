@@ -1,0 +1,28 @@
+[
+  {
+    "id_maquina": "MF-00001",
+    "nombre_maquina": "Peladora automática",
+    "preguntas_mantenimiento": [
+      "¿La máquina está limpia y libre de obstrucciones?",
+      "¿Las cuchillas están afiladas y en buen estado?",
+      "¿El sistema de seguridad funciona correctamente?",
+      "¿Hay fugas de aceite o líquidos?",
+      "¿Los sensores están calibrados?"
+    ]
+  },
+  {
+    "id_maquina": "MF-00002",
+    "nombre_maquina": "Prensa hidráulica",
+    "preguntas_mantenimiento": [
+      "¿La prensa está nivelada?",
+      "¿Las bombas funcionan correctamente?",
+      "¿Los filtros están limpios?"
+    ]
+  },
+  {
+    "nombre_maquina": "Mortadora",
+    "preguntas": [
+      "dxxxx"
+    ]
+  }
+]
