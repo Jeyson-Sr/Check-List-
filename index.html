@@ -9,7 +9,7 @@
     <title>Document</title>
 </head>
 <body>
-    
+
     <!-- <div id="menu_principal" class="menu_principal"> 
         <h1 class="menu_titulo">Menu de Selección</h1>
         <div class="menu_bto">
@@ -23,59 +23,52 @@
         <section id="formularioMaquinas">
             <h2 class="agregar_titulo">Agregar Máquina</h2>
             <form id="formulario" action="/submit-form" method="POST">
-
-                <input id="input_agregar" type="text" placeholder="Agregar máquina..." aria-labelledby="input_agregar" required><!--valor para elJSON-->
-
-                <div id="agregar_preguntas">
-                        
-                </div>
+                <input id="input_agregar" type="text" placeholder="Agregar máquina..." aria-labelledby="input_agregar" required><!--valor para el JSON-->
+                <div id="agregar_preguntas"></div>
                 <button id="nuevas_preguntas" type="button">+</button>
-
-                    <button class="bto" id="bto_guardar" type="submit" aria-label="Guardar máquina">Guardar</button>
+                <button class="bto" id="bto_guardar" type="submit" aria-label="Guardar máquina">Guardar</button>
             </form>
         </section>
     </div>
-    
 
     <div id="Revisar" class="seccionRevisar">
         <h2 class="titulo_revisar">Revisión de Maquinas</h2>
         <div class="inputs_campos">
             <input class="inputs" type="text" placeholder="Inspector">
             <div class="input_maquinas">
-              <input class="inputs" type="text" id="input_maquina" placeholder="Buscar Máquina...">
-              <input class="inputs" type="date" placeholder="Fecha de Inspección">
+                <input class="inputs" type="text" id="input_maquina" oninput="buscarSugerencias()" placeholder="Buscar Máquina...">
+                <div id="sugerencias"></div>
+                <input class="inputs" type="date" placeholder="Fecha de Inspección">
             </div>
         </div>
-        
         <div id="preguntasContainer"></div>
-      
         <div class="contenedor_bto">
-          <button class="bto" id="bto_menu" type="button">Menu</button>
+            <button class="bto" id="bto_menu" type="button">Menu</button>
         </div>
     </div>
 
-    <script >
-        document.getElementById('nuevas_preguntas').addEventListener('click',()=>{
+<script>
+document.getElementById('nuevas_preguntas').addEventListener('click', () => {
     const agregar_preguntas = document.getElementById('agregar_preguntas');
-    agregar_preguntas.innerHTML+=`<input class="preguntas" type="text" id="pregunta2" placeholder="Escribe otra pregunta..." aria-labelledby="pregunta2">`
-    
+    const preguntaId = 'pregunta_' + new Date().getTime(); // Generar un ID único para cada nueva pregunta
+    agregar_preguntas.innerHTML += `<input class="preguntas" type="text" id="${preguntaId}" placeholder="Escribe otra pregunta..." aria-labelledby="${preguntaId}">`;
 });
 
 document.getElementById('bto_guardar').addEventListener('click', function(event) {
-    event.preventDefault(); 
-    
+    event.preventDefault(); // Prevenir el envío del formulario
+
     const agregar_preguntas = document.getElementById('agregar_preguntas');
     const input = agregar_preguntas.getElementsByTagName('input');
-
+    
     const nombre_maquina = document.getElementById('input_agregar').value;
     const preguntas_mantenimiento = [...input].map(input => input.value);
-    
+
     const data = {
         nombre_maquina: nombre_maquina,
         preguntas_mantenimiento: preguntas_mantenimiento
     };
 
-    console.log(data)
+    console.log(data);
 
     fetch('/submit-form', {
         method: 'POST',
@@ -85,12 +78,86 @@ document.getElementById('bto_guardar').addEventListener('click', function(event)
     .then(response => response.json())
     .then(data => {
         console.log('Respuesta del servidor:', data);
-        alert("todo correcto")
+        alert("Máquina guardada correctamente");
+        // Limpiar el formulario después de guardar
+        document.getElementById('formulario').reset();
+        document.getElementById('agregar_preguntas').innerHTML = '';
     })
     .catch(error => {
         console.error('Error:', error);
+        alert("Error al guardar la máquina");
     });
 });
-    </script>
+
+function buscarSugerencias() {
+    const nombreMaquinas = document.getElementById('input_maquina').value;
+
+    if (nombreMaquinas.length > 0) {
+        fetch(`/buscar-nombres?nombreMaquinas=${nombreMaquinas}`)
+            .then(response => response.json())
+            .then(data => mostrarSugerencias(data))
+            .catch(error => console.error('Error al obtener las sugerencias:', error));
+    } else {
+        document.getElementById('sugerencias').style.display = 'none';
+    }
+}
+
+function mostrarSugerencias(nombreMaquinas) {
+    const sugerenciasDiv = document.getElementById('sugerencias');
+    sugerenciasDiv.innerHTML = '';
+
+    if (nombreMaquinas.length > 0) {
+        sugerenciasDiv.style.display = 'block';
+
+        nombreMaquinas.forEach(nombre => {
+            const div = document.createElement('div');
+            div.textContent = nombre;
+            div.onclick = () => seleccionarSugerencia(nombre);
+            sugerenciasDiv.appendChild(div);
+        });
+    } else {
+        sugerenciasDiv.style.display = 'none';
+    }
+}
+
+function seleccionarSugerencia(nombreMaquinas) {
+    fetch(`/obtener-detalles?nombreMaquinas=${nombreMaquinas}`)
+        .then(response => response.json())
+        .then(data => mostrarDetalles(data))
+        .catch(error => console.error('Error al obtener los detalles:', error));
+
+    document.getElementById('sugerencias').style.display = 'none';
+}
+
+function mostrarDetalles(data) {
+    if (data) {
+        document.getElementById('preguntasContainer').innerHTML = '';
+
+        // Mostrar preguntas de mantenimiento
+        data.preguntas_mantenimiento.forEach(pregunta => {
+            const divPregunta = document.createElement('div');
+
+            // Crear y agregar la pregunta
+            const h3 = document.createElement('h3');
+            h3.textContent = pregunta;
+            divPregunta.appendChild(h3);
+
+            // Crear los botones de Sí y No
+            const divBotones = document.createElement('div');
+            const btnSi = document.createElement('button');
+            btnSi.textContent = "Sí";
+            const btnNo = document.createElement('button');
+            btnNo.textContent = "No";
+            divBotones.appendChild(btnSi);
+            divBotones.appendChild(btnNo);
+
+            divPregunta.appendChild(divBotones);
+            document.getElementById('preguntasContainer').appendChild(divPregunta);
+        });
+
+        document.getElementById('preguntasContainer').style.display = 'block';
+    }
+}
+</script>
 </body>
 </html>
