@@ -12,25 +12,48 @@ app.get('/', (req, res) => {
 });
 
 app.post('/submit-form', async (req, res) => {
-    const { nombre_maquina, preguntas } = req.body;
+    const { nombre_maquina, preguntas_mantenimiento } = req.body;
 
     try {
+        // Leer el archivo y obtener las máquinas existentes
         let data = await fs.readFile('maquinas.json', 'utf8');
         let maquinas = JSON.parse(data);
 
-        maquinas.push({ nombre_maquina, preguntas });
+        // Lógica para generar el nuevo id_maquina
+        let nuevoId = "MF-00001";  // Valor por defecto si no hay máquinas
 
+        if (maquinas.length > 0) {
+            // Obtener el último id_maquina y separarlo por "-"
+            let ultimoId = maquinas[maquinas.length - 1].id_maquina;  // Último id_maquina en el archivo
+            let idParts = ultimoId.split("-");  // Separar el prefijo ("MF") y el número
+            let numeroActual = parseInt(idParts[1]);  // Convertir el número a entero
+            numeroActual++;  // Incrementar el número en 1
+
+            // Formatear el número con 5 dígitos, agregando ceros a la izquierda
+            nuevoId = "MF-" + numeroActual.toString().padStart(5, '0');
+        }
+
+        // Agregar el nuevo registro con el id_maquina generado
+        maquinas.push({ id_maquina: nuevoId, nombre_maquina, preguntas_mantenimiento });
+
+        // Escribir los cambios al archivo
         await fs.writeFile('maquinas.json', JSON.stringify(maquinas, null, 2));
 
-        res.status(200).json({ message: 'Datos guardados con éxito', data: { nombre_maquina, preguntas } });
+        // Responder con los datos guardados
+        res.status(200).json({ message: 'Datos guardados con éxito', data: { id_maquina: nuevoId, nombre_maquina, preguntas_mantenimiento } });
     } catch (err) {
         if (err.code === 'ENOENT') {
+            // Si el archivo no existe, crear uno con el primer id
             console.log('Archivo no encontrado, creándolo...');
-            let maquinas = [{ nombre_maquina, preguntas }];
+            let maquinas = [{
+                id_maquina: "MF-00001",  // Primer id
+                nombre_maquina,
+                preguntas_mantenimiento
+            }];
 
             try {
                 await fs.writeFile('maquinas.json', JSON.stringify(maquinas, null, 2));
-                res.status(200).json({ message: 'Datos guardados con éxito', data: { nombre_maquina, preguntas } });
+                res.status(200).json({ message: 'Datos guardados con éxito', data: { id_maquina: "MF-00001", nombre_maquina, preguntas_mantenimiento } });
             } catch (writeError) {
                 console.error('Error al guardar el archivo:', writeError);
                 res.status(500).json({ message: 'Error al guardar los datos' });
@@ -42,27 +65,26 @@ app.post('/submit-form', async (req, res) => {
     }
 });
 
-// // Ruta para buscar nombres en el archivo según lo que envía el cliente
+
 // app.get('/buscar-nombres', (req, res) => {
-//     const { nombre } = req.query;  // Extrae el parámetro 'nombre' de la query, que es lo que se escribe en la barra de búsqueda.
+//     const { nombre } = req.query;  
 
 //     fs.readFile('datos.json', 'utf8', (err, data) => {
 //         if (err) {
 //             console.log("Archivo no encontrado");
-//             return res.status(500).send('Error al leer los datos'); // Responde con un error si no se puede leer el archivo.
+//             return res.status(500).send('Error al leer los datos'); 
 //         }
 
-//         const datos = JSON.parse(data); // Convierte el contenido JSON en un arreglo de objetos.
+//         const datos = JSON.parse(data); 
 //         const filtrados = datos.filter(item => item.nombre.toLowerCase().includes(nombre.toLowerCase()));
-//         // Filtra los nombres que incluyen el texto que busca el usuario.
-//         const nombresFiltrados = filtrados.map(item => item.nombre);  // Extrae solo los nombres.
-//         res.json(nombresFiltrados); // Envia la lista de nombres filtrados en formato JSON.
+//         const nombresFiltrados = filtrados.map(item => item.nombre); 
+
+//         res.json(nombresFiltrados); 
 //     });
 // });
 
-// // Ruta para obtener detalles específicos de un usuario (nombre y edad) desde el archivo
 // app.get('/obtener-detalles', (req, res) => {
-//     const { nombre } = req.query; // Extrae el parámetro 'nombre' de la query, que el usuario ingresa para buscar.
+//     const { nombre } = req.query; 
 
 //     fs.readFile('datos.json', 'utf8', (err, data) => {
 //         if (err) {

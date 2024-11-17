@@ -20,9 +20,195 @@
     ]
   },
   {
-    "nombre_maquina": "Mortadora",
-    "preguntas": [
-      "dxxxx"
+    "id_maquina": "MF-00003",
+    "nombre_maquina": "Cinta transportadora",
+    "preguntas_mantenimiento": [
+      "¿La correa está intacta y sin desgastes?",
+      "¿Los rodillos están lubricados?",
+      "¿El motor está funcionando a la temperatura adecuada?"
+    ]
+  },
+  {
+    "id_maquina": "MF-00004",
+    "nombre_maquina": "Molino de bolas",
+    "preguntas_mantenimiento": [
+      "¿Las bolas están en buen estado?",
+      "¿Los sellos de los rodamientos no presentan fugas?",
+      "¿El sistema de refrigeración está funcionando correctamente?"
+    ]
+  },
+  {
+    "id_maquina": "MF-00005",
+    "nombre_maquina": "Trituradora de mandíbula",
+    "preguntas_mantenimiento": [
+      "¿Las mandíbulas están alineadas?",
+      "¿El sistema de alimentación está libre de bloqueos?",
+      "¿Los cojinetes del eje están lubricados?"
+    ]
+  },
+  {
+    "id_maquina": "MF-00006",
+    "nombre_maquina": "Prensa de rodillos",
+    "preguntas_mantenimiento": [
+      "¿Los rodillos están en buen estado?",
+      "¿El sistema hidráulico tiene presión correcta?",
+      "¿No hay vibraciones anormales en los rodillos?"
+    ]
+  },
+  {
+    "id_maquina": "MF-00007",
+    "nombre_maquina": "Compresor de aire",
+    "preguntas_mantenimiento": [
+      "¿El compresor arranca y para sin problemas?",
+      "¿Los filtros de aire están limpios?",
+      "¿No hay ruidos inusuales durante su funcionamiento?"
+    ]
+  },
+  {
+    "id_maquina": "MF-00008",
+    "nombre_maquina": "Generador eléctrico",
+    "preguntas_mantenimiento": [
+      "¿El generador arranca correctamente?",
+      "¿Los cables están en buen estado?",
+      "¿El nivel de combustible es el adecuado?"
+    ]
+  },
+  {
+    "id_maquina": "MF-00009",
+    "nombre_maquina": "Elevador de cangilones",
+    "preguntas_mantenimiento": [
+      "¿Las cangilones están bien ajustados?",
+      "¿El motor está funcionando correctamente?",
+      "¿El sistema de transmisión no tiene ruidos extraños?"
+    ]
+  },
+  {
+    "id_maquina": "MF-00010",
+    "nombre_maquina": "Bombas centrífugas",
+    "preguntas_mantenimiento": [
+      "¿La bomba está libre de obstrucciones?",
+      "¿El sello mecánico no presenta fugas?",
+      "¿Los rodamientos están lubricados adecuadamente?"
+    ]
+  },
+  {
+    "id_maquina": "MF-00011",
+    "nombre_maquina": "Cargadora de ruedas",
+    "preguntas_mantenimiento": [
+      "¿Las llantas están bien infladas?",
+      "¿Los frenos están funcionando correctamente?",
+      "¿El sistema hidráulico no tiene fugas?"
+    ]
+  },
+  {
+    "id_maquina": "MF-00012",
+    "nombre_maquina": "Excavadora hidráulica",
+    "preguntas_mantenimiento": [
+      "¿Los aceites hidráulicos están en el nivel adecuado?",
+      "¿Las mangueras no tienen grietas o desgastes?",
+      "¿El sistema de control funciona sin problemas?"
+    ]
+  },
+  {
+    "id_maquina": "MF-00013",
+    "nombre_maquina": "Rodillo compactador",
+    "preguntas_mantenimiento": [
+      "¿Los rodillos están nivelados?",
+      "¿El sistema de vibración está funcionando?",
+      "¿El motor de la máquina está operando a la temperatura correcta?"
+    ]
+  },
+  {
+    "id_maquina": "MF-00014",
+    "nombre_maquina": "Balanza de pesaje",
+    "preguntas_mantenimiento": [
+      "¿La balanza está calibrada correctamente?",
+      "¿Las celdas de carga están libres de obstrucciones?",
+      "¿El sistema eléctrico está funcionando correctamente?"
+    ]
+  },
+  {
+    "id_maquina": "MF-00015",
+    "nombre_maquina": "Horno de secado",
+    "preguntas_mantenimiento": [
+      "¿El termostato está calibrado?",
+      "¿El ventilador de circulación de aire está operativo?",
+      "¿No hay fugas de calor?"
+    ]
+  },
+  {
+    "id_maquina": "MF-00016",
+    "nombre_maquina": "Máquina de soldar",
+    "preguntas_mantenimiento": [
+      "¿Los electrodos están en buen estado?",
+      "¿El cable de alimentación está sin daños?",
+      "¿El sistema de ventilación está funcionando?"
+    ]
+  },
+  {
+    "id_maquina": "MF-00017",
+    "nombre_maquina": "Corte por láser",
+    "preguntas_mantenimiento": [
+      "¿El láser está funcionando sin interrupciones?",
+      "¿Las lentes están limpias?",
+      "¿El sistema de enfriamiento está operativo?"
+    ]
+  },
+  {
+    "id_maquina": "MF-00018",
+    "nombre_maquina": "Prensa de inyección",
+    "preguntas_mantenimiento": [
+      "¿Las matrices están alineadas?",
+      "¿El sistema hidráulico tiene la presión correcta?",
+      "¿Las válvulas no presentan fugas?"
+    ]
+  },
+  {
+    "id_maquina": "MF-00019",
+    "nombre_maquina": "Cortadora CNC",
+    "preguntas_mantenimiento": [
+      "¿Las herramientas de corte están afiladas?",
+      "¿La mesa está limpia y nivelada?",
+      "¿Los ejes se mueven sin problemas?"
+    ]
+  },
+  {
+    "id_maquina": "MF-00020",
+    "nombre_maquina": "Carretilla elevadora",
+    "preguntas_mantenimiento": [
+      "¿Las horquillas están alineadas?",
+      "¿La batería está en buen estado?",
+      "¿Los frenos funcionan correctamente?"
+    ]
+  },
+  {
+    "id_maquina": "MF-00021",
+    "nombre_maquina": "Procesadora de Botellas",
+    "preguntas_mantenimiento": [
+      "¿Tine un sistema correcto de comprecion?",
+      "¿obtene suficiente aire?",
+      "¿manteine el aire frio?",
+      "¿no tienen fugas de aire?",
+      "¿no tienen fugas de aire?"
+    ]
+  },
+  {
+    "id_maquina": "MF-00022",
+    "nombre_maquina": "Cortadora",
+    "preguntas_mantenimiento": [
+      "¿Corta correctamente?",
+      "¿Tienen filo las cuchillas?",
+      "¿La cuchillas estan correctamnet poscicionadas?",
+      "¿no tienen fugas de aire?"
+    ]
+  },
+  {
+    "id_maquina": "MF-00023",
+    "nombre_maquina": "Mantecadora",
+    "preguntas_mantenimiento": [
+      "¿Manteca correctamnete?",
+      "¿La manteca es d lata calidad?",
+      "¿Semnatiene la manteca de correcta calidad?"
     ]
   }
 ]
