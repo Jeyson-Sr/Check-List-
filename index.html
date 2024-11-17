@@ -1,23 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-bold-rounded/css/uicons-bold-rounded.css'>
-    <link rel="stylesheet" href="style.css">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+        <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-bold-rounded/css/uicons-bold-rounded.css'>
+        <link rel="stylesheet" href="style.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <title>Document</title>
 </head>
 <body>
 
-    <!-- <div id="menu_principal" class="menu_principal"> 
+    <div id="menu_principal" class="menu_principal"> 
         <h1 class="menu_titulo">Menu de Selección</h1>
         <div class="menu_bto">
             <button id="menu_agregar" class="bto" type="button">Agregar</button>
             <button id="menu_revisar" class="bto" type="button">Revisar</button>
         </div>  
         <button class="eliminar" type="button">Eliminar</button>
-    </div> -->
+    </div>
 
     <div id="Agregar">
         <section id="formularioMaquinas">
@@ -32,20 +33,28 @@
     </div>
 
     <div id="Revisar" class="seccionRevisar">
-        <h2 class="titulo_revisar">Revisión de Maquinas</h2>
+        <h2 class="titulo_revisar">Revisión de Máquinas</h2>
         <div class="inputs_campos">
-            <input class="inputs" type="text" placeholder="Inspector">
+            <input id="input_inspector" class="inputs" type="text" placeholder="Inspector">
             <div class="input_maquinas">
                 <input class="inputs" type="text" id="input_maquina" oninput="buscarSugerencias()" placeholder="Buscar Máquina...">
                 <div id="sugerencias"></div>
-                <input class="inputs" type="date" placeholder="Fecha de Inspección">
+                <input id="input_flecha" class="inputs" type="date" placeholder="Fecha de Inspección">
             </div>
         </div>
+    
+        <!-- Contenedor para las preguntas dinámicas -->
         <div id="preguntasContainer"></div>
+    
+        <!-- Campo de Observaciones Generales -->
+        <div id="observacionesContainer"></div>
+    
         <div class="contenedor_bto">
-            <button class="bto" id="bto_menu" type="button">Menu</button>
+            <button class="bto" id="bto_menu" type="button">Menú</button>
+            <button class="bto" id="bto_descargar" type="button" onclick="descargarPDF()">Descargar PDF</button>
         </div>
     </div>
+    
 
 <script>
 document.getElementById('nuevas_preguntas').addEventListener('click', () => {
@@ -89,6 +98,8 @@ document.getElementById('bto_guardar').addEventListener('click', function(event)
     });
 });
 
+ let respuestas = [];
+
 function buscarSugerencias() {
     const nombreMaquinas = document.getElementById('input_maquina').value;
 
@@ -108,7 +119,6 @@ function mostrarSugerencias(nombreMaquinas) {
 
     if (nombreMaquinas.length > 0) {
         sugerenciasDiv.style.display = 'block';
-
         nombreMaquinas.forEach(nombre => {
             const div = document.createElement('div');
             div.textContent = nombre;
@@ -132,12 +142,8 @@ function seleccionarSugerencia(nombreMaquinas) {
 function mostrarDetalles(data) {
     if (data) {
         document.getElementById('preguntasContainer').innerHTML = '';
-
-        // Mostrar preguntas de mantenimiento
-        data.preguntas_mantenimiento.forEach(pregunta => {
+        data.preguntas_mantenimiento.forEach((pregunta, index) => {
             const divPregunta = document.createElement('div');
-
-            // Crear y agregar la pregunta
             const h3 = document.createElement('h3');
             h3.textContent = pregunta;
             divPregunta.appendChild(h3);
@@ -146,8 +152,10 @@ function mostrarDetalles(data) {
             const divBotones = document.createElement('div');
             const btnSi = document.createElement('button');
             btnSi.textContent = "Sí";
+            btnSi.onclick = () => guardarRespuesta(index, 'Sí'); // Guardar respuesta "Sí"
             const btnNo = document.createElement('button');
             btnNo.textContent = "No";
+            btnNo.onclick = () => guardarRespuesta(index, 'No'); // Guardar respuesta "No"
             divBotones.appendChild(btnSi);
             divBotones.appendChild(btnNo);
 
@@ -155,9 +163,59 @@ function mostrarDetalles(data) {
             document.getElementById('preguntasContainer').appendChild(divPregunta);
         });
 
-        document.getElementById('preguntasContainer').style.display = 'block';
+        // Crear el campo de observaciones
+        const divObservaciones = document.createElement('div');
+        const labelObservaciones = document.createElement('label');
+        labelObservaciones.textContent = 'Observaciones generales:';
+        const textareaObservaciones = document.createElement('textarea');
+        textareaObservaciones.id = 'observaciones';
+        textareaObservaciones.placeholder = 'Escriba aquí las observaciones generales sobre la máquina...';
+        divObservaciones.appendChild(labelObservaciones);
+        divObservaciones.appendChild(textareaObservaciones);
+
+        // Añadir el textarea al contenedor de observaciones
+        document.getElementById('observacionesContainer').appendChild(divObservaciones);
     }
 }
+
+// Función para guardar las respuestas
+function guardarRespuesta(index, respuesta) {
+    respuestas[index] = respuesta; // Guardar la respuesta en el array
+}
+
+// Función para descargar el PDF
+function descargarPDF() {
+    const { jsPDF } = window.jspdf;
+
+    // Obtener los datos de los inputs y textarea
+    const inspector = document.getElementById('input_inspector').value;
+    const maquina = document.getElementById('input_maquina').value;
+    const fecha = document.getElementById('input_flecha').value;
+    const observaciones = document.getElementById('observaciones').value;
+
+    // Crear un nuevo documento PDF
+    const doc = new jsPDF();
+    
+    // Título
+    doc.text(`Informe de Inspección - ${inspector}`, 20, 20);
+    doc.text(`Máquina: ${maquina}`, 20, 30);
+    doc.text(`Fecha de Inspección: ${fecha}`, 20, 40);
+
+    // Añadir las respuestas de las preguntas
+    doc.text('Respuestas a las preguntas:', 20, 50);
+    respuestas.forEach((respuesta, index) => {
+        doc.text(`Pregunta ${index + 1}: ${respuesta}`, 20, 60 + index * 10);
+    });
+
+    // Añadir las observaciones generales
+    doc.text('Observaciones generales:', 20, 70 + respuestas.length * 10);
+    doc.text(observaciones, 20, 80 + respuestas.length * 10);
+
+    // Guardar el PDF
+    const nombreArchivo = `${inspector}_${maquina}_${fecha}.pdf`;
+    doc.save(nombreArchivo);
+}
+
 </script>
 </body>
 </html>
