@@ -1,15 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-        <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-bold-rounded/css/uicons-bold-rounded.css'>
-        <link rel="stylesheet" href="style.css">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-bold-rounded/css/uicons-bold-rounded.css'>
+    <link rel="stylesheet" href="style.css">
+    <!-- Importaciones corregidas de jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <title>Document</title>
 </head>
 <body>
+
+    <style>
+        .pdf-section {
+            margin-bottom: 20px;
+            border: 1px solid #000;
+            padding: 10px;
+        }
+        .pdf-table {
+            width: 100%;
+            margin-top: 20px;
+        }
+        .pdf-table th, .pdf-table td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #000;
+        }
+        .pdf-table th {
+            background-color: #f4f4f4;
+        }
+    </style>
 
     <div id="menu_principal" class="menu_principal"> 
         <h1 class="menu_titulo">Menu de Selección</h1>
@@ -55,167 +77,270 @@
         </div>
     </div>
     
+    <script>
+        document.getElementById('nuevas_preguntas').addEventListener('click', () => {
+            const agregar_preguntas = document.getElementById('agregar_preguntas');
+            const preguntaId = 'pregunta_' + new Date().getTime(); // Generar un ID único para cada nueva pregunta
+            agregar_preguntas.innerHTML += `<input class="preguntas" type="text" id="${preguntaId}" placeholder="Escribe otra pregunta..." aria-labelledby="${preguntaId}">`;
+        });
 
-<script>
-document.getElementById('nuevas_preguntas').addEventListener('click', () => {
-    const agregar_preguntas = document.getElementById('agregar_preguntas');
-    const preguntaId = 'pregunta_' + new Date().getTime(); // Generar un ID único para cada nueva pregunta
-    agregar_preguntas.innerHTML += `<input class="preguntas" type="text" id="${preguntaId}" placeholder="Escribe otra pregunta..." aria-labelledby="${preguntaId}">`;
-});
+        document.getElementById('bto_guardar').addEventListener('click', function(event) {
+            event.preventDefault(); // Prevenir el envío del formulario
 
-document.getElementById('bto_guardar').addEventListener('click', function(event) {
-    event.preventDefault(); // Prevenir el envío del formulario
+            const agregar_preguntas = document.getElementById('agregar_preguntas');
+            const input = agregar_preguntas.getElementsByTagName('input');
+            
+            const nombre_maquina = document.getElementById('input_agregar').value;
+            const preguntas_mantenimiento = [...input].map(input => input.value);
 
-    const agregar_preguntas = document.getElementById('agregar_preguntas');
-    const input = agregar_preguntas.getElementsByTagName('input');
-    
-    const nombre_maquina = document.getElementById('input_agregar').value;
-    const preguntas_mantenimiento = [...input].map(input => input.value);
+            const data = {
+                nombre_maquina: nombre_maquina,
+                preguntas_mantenimiento: preguntas_mantenimiento
+            };
 
-    const data = {
-        nombre_maquina: nombre_maquina,
-        preguntas_mantenimiento: preguntas_mantenimiento
-    };
+            console.log(data);
 
-    console.log(data);
-
-    fetch('/submit-form', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Respuesta del servidor:', data);
-        alert("Máquina guardada correctamente");
-        // Limpiar el formulario después de guardar
-        document.getElementById('formulario').reset();
-        document.getElementById('agregar_preguntas').innerHTML = '';
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert("Error al guardar la máquina");
-    });
-});
-
- let respuestas = [];
-
-function buscarSugerencias() {
-    const nombreMaquinas = document.getElementById('input_maquina').value;
-
-    if (nombreMaquinas.length > 0) {
-        fetch(`/buscar-nombres?nombreMaquinas=${nombreMaquinas}`)
+            fetch('/submit-form', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            })
             .then(response => response.json())
-            .then(data => mostrarSugerencias(data))
-            .catch(error => console.error('Error al obtener las sugerencias:', error));
-    } else {
-        document.getElementById('sugerencias').style.display = 'none';
-    }
-}
-
-function mostrarSugerencias(nombreMaquinas) {
-    const sugerenciasDiv = document.getElementById('sugerencias');
-    sugerenciasDiv.innerHTML = '';
-
-    if (nombreMaquinas.length > 0) {
-        sugerenciasDiv.style.display = 'block';
-        nombreMaquinas.forEach(nombre => {
-            const div = document.createElement('div');
-            div.textContent = nombre;
-            div.onclick = () => seleccionarSugerencia(nombre);
-            sugerenciasDiv.appendChild(div);
-        });
-    } else {
-        sugerenciasDiv.style.display = 'none';
-    }
-}
-
-function seleccionarSugerencia(nombreMaquinas) {
-    fetch(`/obtener-detalles?nombreMaquinas=${nombreMaquinas}`)
-        .then(response => response.json())
-        .then(data => mostrarDetalles(data))
-        .catch(error => console.error('Error al obtener los detalles:', error));
-
-    document.getElementById('sugerencias').style.display = 'none';
-}
-
-function mostrarDetalles(data) {
-    if (data) {
-        document.getElementById('preguntasContainer').innerHTML = '';
-        data.preguntas_mantenimiento.forEach((pregunta, index) => {
-            const divPregunta = document.createElement('div');
-            const h3 = document.createElement('h3');
-            h3.textContent = pregunta;
-            divPregunta.appendChild(h3);
-
-            // Crear los botones de Sí y No
-            const divBotones = document.createElement('div');
-            const btnSi = document.createElement('button');
-            btnSi.textContent = "Sí";
-            btnSi.onclick = () => guardarRespuesta(index, 'Sí'); // Guardar respuesta "Sí"
-            const btnNo = document.createElement('button');
-            btnNo.textContent = "No";
-            btnNo.onclick = () => guardarRespuesta(index, 'No'); // Guardar respuesta "No"
-            divBotones.appendChild(btnSi);
-            divBotones.appendChild(btnNo);
-
-            divPregunta.appendChild(divBotones);
-            document.getElementById('preguntasContainer').appendChild(divPregunta);
+            .then(data => {
+                console.log('Respuesta del servidor:', data);
+                alert("Máquina guardada correctamente");
+                // Limpiar el formulario después de guardar
+                document.getElementById('formulario').reset();
+                document.getElementById('agregar_preguntas').innerHTML = '';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Error al guardar la máquina");
+            });
         });
 
-        // Crear el campo de observaciones
-        const divObservaciones = document.createElement('div');
-        const labelObservaciones = document.createElement('label');
-        labelObservaciones.textContent = 'Observaciones generales:';
-        const textareaObservaciones = document.createElement('textarea');
-        textareaObservaciones.id = 'observaciones';
-        textareaObservaciones.placeholder = 'Escriba aquí las observaciones generales sobre la máquina...';
-        divObservaciones.appendChild(labelObservaciones);
-        divObservaciones.appendChild(textareaObservaciones);
+        // Variable global para almacenar las respuestas
+        let respuestas = [];
+        let preguntasParaPDF = [];
 
-        // Añadir el textarea al contenedor de observaciones
-        document.getElementById('observacionesContainer').appendChild(divObservaciones);
+        // Función que simula la búsqueda de sugerencias de máquina
+        function buscarSugerencias() {
+            const nombreMaquinas = document.getElementById('input_maquina').value;
+
+            if (nombreMaquinas.length > 0) {
+                // Aquí se simula el proceso de búsqueda de máquinas
+                fetch(`/buscar-nombres?nombreMaquinas=${nombreMaquinas}`)
+                    .then(response => response.json())
+                    .then(data => mostrarSugerencias(data))
+                    .catch(error => console.error('Error al obtener las sugerencias:', error));
+            } else {
+                document.getElementById('sugerencias').style.display = 'none';
+            }
+        }
+
+        function mostrarSugerencias(nombreMaquinas) {
+            const sugerenciasDiv = document.getElementById('sugerencias');
+            sugerenciasDiv.innerHTML = '';
+
+            if (nombreMaquinas.length > 0) {
+                sugerenciasDiv.style.display = 'block';
+                nombreMaquinas.forEach(nombre => {
+                    const div = document.createElement('div');
+                    div.textContent = nombre;
+                    div.onclick = () => seleccionarSugerencia(nombre);
+                    sugerenciasDiv.appendChild(div);
+                });
+            } else {
+                sugerenciasDiv.style.display = 'none';
+            }
+        }
+
+        function seleccionarSugerencia(nombreMaquinas) {
+            document.getElementById('input_maquina').value = nombreMaquinas;
+            fetch(`/obtener-detalles?nombreMaquinas=${nombreMaquinas}`)
+                .then(response => response.json())
+                .then(data => mostrarDetalles(data))
+                .catch(error => console.error('Error al obtener los detalles:', error));
+
+            document.getElementById('sugerencias').style.display = 'none';
+        }
+
+        function mostrarDetalles(data) {
+            if (data) {
+                document.getElementById('preguntasContainer').innerHTML = '';
+
+                // Guardamos las preguntas reales en una variable global para usarlas en el PDF
+                preguntasParaPDF = data.preguntas_mantenimiento;
+
+                preguntasParaPDF.forEach((pregunta, index) => {
+                    const divPregunta = document.createElement('div');
+                    const h3 = document.createElement('h3');
+                    h3.textContent = pregunta;
+                    divPregunta.appendChild(h3);
+
+                    // Crear los botones de Sí y No
+                    const divBotones = document.createElement('div');
+                    const btnSi = document.createElement('button');
+                    btnSi.textContent = "Sí";
+                    btnSi.onclick = () => guardarRespuesta(index, 'Sí'); // Guardar respuesta "Sí"
+                    const btnNo = document.createElement('button');
+                    btnNo.textContent = "No";
+                    btnNo.onclick = () => guardarRespuesta(index, 'No'); // Guardar respuesta "No"
+                    divBotones.appendChild(btnSi);
+                    divBotones.appendChild(btnNo);
+
+                    divPregunta.appendChild(divBotones);
+                    document.getElementById('preguntasContainer').appendChild(divPregunta);
+                });
+
+                // Crear el campo de observaciones
+                const divObservaciones = document.createElement('div');
+                const labelObservaciones = document.createElement('label');
+                labelObservaciones.textContent = 'Observaciones generales:';
+                const textareaObservaciones = document.createElement('textarea');
+                textareaObservaciones.id = 'observaciones';
+                textareaObservaciones.placeholder = 'Escriba aquí las observaciones generales sobre la máquina...';
+                divObservaciones.appendChild(labelObservaciones);
+                divObservaciones.appendChild(textareaObservaciones);
+
+                // Añadir el textarea al contenedor de observaciones
+                document.getElementById('observacionesContainer').appendChild(divObservaciones);
+            }
+        }
+
+        // Función para guardar las respuestas
+        function guardarRespuesta(index, respuesta) {
+            respuestas[index] = respuesta; // Guardar la respuesta en el array
+        }
+
+        function descargarPDF() {
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Obtener los datos
+        const inspector = document.getElementById('input_inspector').value || 'Sin especificar';
+        const maquina = document.getElementById('input_maquina').value || 'Sin especificar';
+        const fecha = document.getElementById('input_flecha').value || 'Sin especificar';
+        const observaciones = document.getElementById('observaciones').value || 'Sin observaciones';
+
+        // Configuración inicial
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(18);
+        
+        // Título centrado
+        doc.text('Revisión de máquinas', 105, 20, { align: 'center' });
+
+        // Crear sección de información con formato de la imagen
+        // Primero dibujamos los rectángulos verdes
+        doc.setFillColor(220, 240, 220); // Color verde claro
+
+        // Rectángulo para máquina
+        doc.rect(10, 30, 60, 8, 'F');
+        // Rectángulo para inspector
+        doc.rect(130, 30, 70, 8, 'F');
+        // Rectángulo para fecha
+        doc.rect(10, 45, 60, 8, 'F');
+
+        // Líneas para los campos de entrada
+        doc.setDrawColor(100, 100, 100);
+        doc.setLineWidth(0.1);
+        
+        // Líneas para máquina
+        doc.line(70, 38, 120, 38);
+        // Líneas para inspector
+        doc.line(130, 38, 200, 38);
+        // Líneas para fecha
+        doc.line(70, 53, 120, 53);
+
+        // Agregar textos en los rectángulos verdes
+        doc.setFontSize(11);
+        doc.setTextColor(0, 0, 0);
+        
+        // Textos de los campos
+        doc.text('Máquina:', 12, 36);
+        doc.text('Inspector:', 132, 36);
+        doc.text('Fecha:', 12, 51);
+
+        // Agregar la información ingresada
+        doc.setFont("helvetica", "normal");
+        doc.text(maquina, 72, 36);
+        doc.text(inspector, 160, 36);
+        doc.text(fecha, 72, 51);
+
+        // Tabla de preguntas
+        const preguntasYRespuestas = preguntasParaPDF.map((pregunta, index) => {
+            return [pregunta, respuestas[index] || 'Sin responder'];
+        });
+
+        doc.autoTable({
+            startY: 65,
+            head: [['Preguntas', 'Estado']],
+            body: preguntasYRespuestas,
+            theme: 'grid',
+            headStyles: {
+                fillColor: [220, 240, 220],
+                textColor: 0,
+                fontStyle: 'bold',
+                halign: 'left'
+            },
+            styles: {
+                overflow: 'linebreak',
+                cellPadding: 5,
+                fontSize: 10,
+                cellWidth: 'auto'
+            },
+            columnStyles: {
+                0: { 
+                    cellWidth: 150,
+                    fillColor: [255, 255, 255]
+                },
+                1: { 
+                    cellWidth: 40,
+                    halign: 'center',
+                    fillColor: [255, 255, 255]
+                }
+            },
+            alternateRowStyles: {
+                fillColor: [245, 245, 245]
+            }
+        });
+
+        // Observaciones generales
+        const finalY = doc.lastAutoTable.finalY + 10;
+        
+        // Título de observaciones en rectángulo verde
+        doc.setFillColor(220, 240, 220);
+        doc.rect(10, finalY, 190, 8, 'F');
+        
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.text('Observaciones generales', 12, finalY + 6);
+
+        // Marco para observaciones
+        doc.setDrawColor(100, 100, 100);
+        doc.setLineWidth(0.1);
+        doc.rect(10, finalY + 10, 190, 40);
+
+        // Texto de observaciones
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        const splitObservaciones = doc.splitTextToSize(observaciones, 180);
+        doc.text(splitObservaciones, 15, finalY + 20);
+
+        // Agregar pie de página
+        doc.setFontSize(8);
+        doc.text('Documento generado automáticamente', 105, 285, { align: 'center' });
+
+        // Guardar el PDF
+        const nombreArchivo = `Revision_${maquina}_${fecha}.pdf`;
+        doc.save(nombreArchivo);
+
+    } catch (error) {
+        console.error('Error al generar el PDF:', error);
+        alert('Hubo un error al generar el PDF. Por favor, intente nuevamente.');
     }
 }
-
-// Función para guardar las respuestas
-function guardarRespuesta(index, respuesta) {
-    respuestas[index] = respuesta; // Guardar la respuesta en el array
-}
-
-// Función para descargar el PDF
-function descargarPDF() {
-    const { jsPDF } = window.jspdf;
-
-    // Obtener los datos de los inputs y textarea
-    const inspector = document.getElementById('input_inspector').value;
-    const maquina = document.getElementById('input_maquina').value;
-    const fecha = document.getElementById('input_flecha').value;
-    const observaciones = document.getElementById('observaciones').value;
-
-    // Crear un nuevo documento PDF
-    const doc = new jsPDF();
-    
-    // Título
-    doc.text(`Informe de Inspección - ${inspector}`, 20, 20);
-    doc.text(`Máquina: ${maquina}`, 20, 30);
-    doc.text(`Fecha de Inspección: ${fecha}`, 20, 40);
-
-    // Añadir las respuestas de las preguntas
-    doc.text('Respuestas a las preguntas:', 20, 50);
-    respuestas.forEach((respuesta, index) => {
-        doc.text(`Pregunta ${index + 1}: ${respuesta}`, 20, 60 + index * 10);
-    });
-
-    // Añadir las observaciones generales
-    doc.text('Observaciones generales:', 20, 70 + respuestas.length * 10);
-    doc.text(observaciones, 20, 80 + respuestas.length * 10);
-
-    // Guardar el PDF
-    const nombreArchivo = `${inspector}_${maquina}_${fecha}.pdf`;
-    doc.save(nombreArchivo);
-}
-
-</script>
+    </script>
 </body>
 </html>
